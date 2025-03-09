@@ -1,4 +1,4 @@
-package com.config;
+package com.example.meteotrip.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
