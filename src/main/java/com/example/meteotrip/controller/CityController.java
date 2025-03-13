@@ -1,7 +1,10 @@
 package com.example.meteotrip.controller;
 
 import com.example.meteotrip.dto.CityDto;
+import com.example.meteotrip.mapper.CityMapper;
 import com.example.meteotrip.service.CityService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,27 +19,46 @@ public class CityController {
     }
 
     @PostMapping("/save")
-    public CityDto save(@RequestBody CityDto cityDto) {
-        return service.save(cityDto);
+    public ResponseEntity<CityDto> save(@RequestBody CityDto cityDto) {
+        CityDto savedCity = service.save(cityDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCity);
     }
 
     @GetMapping("/list")
-    public List<CityDto> list() {
-        return service.findAll();
+    public ResponseEntity<?> list() {
+        List<CityDto> cities = service.findAll();
+        if (cities.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhuma cidade cadastrada.");
+        }
+        return ResponseEntity.ok(cities);
     }
 
     @GetMapping("/list/{id}")
-    public CityDto findById(@PathVariable Long id) {
-        return service.findById(id);
+    public ResponseEntity<?> findById(@PathVariable Long id) {
+        CityDto cityDto = service.findById(id);
+        if (cityDto == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cidade com ID " + id + " não encontrada.");
+        }
+        return ResponseEntity.ok(cityDto);
     }
 
     @PutMapping("/update/{id}")
-    public CityDto update(@PathVariable Long id, @RequestBody CityDto cityDto) {
-        return service.update(id, cityDto);
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody CityDto cityDto) {
+        CityDto existingCity = service.findById(id);
+        if (existingCity == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cidade com ID " + id + " não encontrada.");
+        }
+        CityDto updatedCity = service.update(id, cityDto);
+        return ResponseEntity.ok(updatedCity);
     }
 
     @DeleteMapping("/delete/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable Long id) {
+        CityDto cityDto = service.findById(id);
+        if (cityDto == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cidade com ID " + id + " não encontrada.");
+        }
         service.delete(id);
+        return ResponseEntity.ok("Cidade com ID " + id + " deletada com sucesso.");
     }
 }
