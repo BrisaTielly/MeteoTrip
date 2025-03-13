@@ -19,5 +19,6 @@ public class City {
     private Long id;
     private String name;
     private String state;
+    @Enumerated(EnumType.STRING)
     private TripType tripType;
 }
